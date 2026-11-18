@@ -1,0 +1,21 @@
+services:
+  disk-risk-api:
+    build: .
+    image: disk-risk-api:latest
+    container_name: disk-risk-api
+    ports:
+      - "8000:8000"
+    environment:
+      # —— 合批规则 ——
+      MAX_BATCH_SIZE: "8"          # 单批最多 8 个请求
+      BATCH_WINDOW_MS: "40"        # 组批窗口不超过 40 毫秒
+      MAX_QUEUE: "32"              # 排队最多 32 个
+      # —— 模拟推理行为 ——
+      MODEL_LATENCY_S: "0.12"      # 每次矩阵推理的模拟延迟（秒）
+      FAIL_BATCH_NO: "3"           # 第 3 次矩阵推理注入一次故障；置 0 关闭
+    restart: "no"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).status==200 else 1)"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
