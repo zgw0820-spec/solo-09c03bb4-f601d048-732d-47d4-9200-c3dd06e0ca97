@@ -13,9 +13,16 @@ services:
       # —— 模拟推理行为 ——
       MODEL_LATENCY_S: "0.12"      # 每次矩阵推理的模拟延迟（秒）
       FAIL_BATCH_NO: "3"           # 第 3 次矩阵推理注入一次故障；置 0 关闭
+      # —— 回执与巡检反馈 ——
+      RECEIPT_DB_PATH: "/srv/data/receipts.sqlite3"  # 持久卷内的 SQLite 文件
+    volumes:
+      - receipt-data:/srv/data     # 重启 / 重建容器后回执与反馈仍有效
     restart: "no"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).status==200 else 1)"]
       interval: 10s
       timeout: 3s
       retries: 5
+
+volumes:
+  receipt-data:

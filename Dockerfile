@@ -11,6 +11,10 @@ RUN pip install -r requirements.txt
 
 COPY app ./app
 
+# 回执库默认位置；Compose 将其挂载为持久卷
+RUN mkdir -p /srv/data
+ENV RECEIPT_DB_PATH=/srv/data/receipts.sqlite3
+
 EXPOSE 8000
 
 HEALTHCHECK --interval=10s --timeout=3s --retries=5 \
